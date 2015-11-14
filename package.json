@@ -1,0 +1,27 @@
+{
+  "name": "cl-n",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel-core/register test/**/*.js"
+  },
+  "dependencies":{
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "babel": "*",
+    "chokidar": "*",
+    "babel-cli": "*",
+    "babel-core": "*",
+    "babel-preset-es2015": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoveKino/cl-n.git"
+  },
+  "keywords": [
+  ],
+  "author": "ddchen",
+  "license": "MIT"
+}
