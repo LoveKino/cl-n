@@ -1,7 +1,7 @@
 {
   "name": "cl-n",
   "version": "0.0.1",
-  "description": "",
+  "description": "Function Connection APIs",
   "main": "index.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register test/**/*.js"
