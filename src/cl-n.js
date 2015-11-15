@@ -1,7 +1,7 @@
 import Net from "./net";
 import enlace from "./enlace";
 
-let N = (opts = {}) => {
+module.exports = (opts = {}) => {
     let net = Net();
 
     let n = (f, context) => {
@@ -24,13 +24,7 @@ let N = (opts = {}) => {
 
         newF.c = newF.append = (...y) => {
             for (let i = 0; i < y.length; i++) {
-                let item = y[i];
-                if (typeof item !== "function") {
-                    throw new Error("Expect n function like n(()=>10)");
-                }
-                if(!item.getClassName || item.getClassName() !== "n"){
-                    item = n(item);
-                }
+                let item = getItem(y[i]);
                 item = item.getNode();
                 fNode.append.call(fNode, item);
             }
@@ -65,7 +59,30 @@ let N = (opts = {}) => {
         return newF;
     }
 
+    n.series = (...y) => {
+        let tmp = null;
+        for (let i = y.length - 1; i >= 0; i--) {
+            let item = y[i];
+            if (tmp === null) {
+                tmp = getItem(item);
+            } else {
+                let prev = getItem(item);
+                prev.append(tmp);
+                tmp = prev;
+            }
+        }
+        return tmp;
+    }
+
+    let getItem = (item) => {
+        if (typeof item !== "function") {
+            throw new Error("Expect n function like n(()=>10)");
+        }
+        if (!item.getClassName || item.getClassName() !== "n") {
+            item = n(item);
+        }
+        return item;
+    }
+
     return n;
 }
-
-export default N;

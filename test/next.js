@@ -1,7 +1,7 @@
 import assert from "assert";
 import N from "../index";
 
-describe("base", () => {
+describe("next", () => {
     it("next", () => {
         let n = N();
         let f1 = n(function() {
