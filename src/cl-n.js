@@ -22,7 +22,7 @@ let N = (opts = {}) => {
 
         fNode.data.context = context || newF;
 
-        newF.append = (...y) => {
+        newF.c = newF.append = (...y) => {
             for (let i = 0; i < y.length; i++) {
                 let item = y[i];
                 if (typeof item !== "function") {
