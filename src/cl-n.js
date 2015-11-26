@@ -22,6 +22,16 @@ module.exports = (opts = {}) => {
 
         fNode.data.context = context || newF;
 
+        let followNext = (name) => (...y) => {
+            let gen = enlace();
+            let list = null;
+            let box = gen.create(fNode, (res) => {
+                list = res;
+            });
+            box[name].apply(box, y);
+            return list;
+        }
+
         newF.c = newF.append = (...y) => {
             for (let i = 0; i < y.length; i++) {
                 let item = getItem(y[i]);
@@ -33,25 +43,13 @@ module.exports = (opts = {}) => {
 
         newF.getNode = () => fNode;
 
-        newF.next = (...y) => {
-            let gen = enlace();
-            let list = null;
-            let box = gen.create(fNode, (res) => {
-                list = res;
-            });
-            box.next.apply(box, y);
-            return list;
-        }
+        newF.next = followNext('next');
 
-        newF.nextRecursive = (...y) => {
-            let gen = enlace();
-            let list = null;
-            let box = gen.create(fNode, (res) => {
-                list = res;
-            });
-            box.nextRecursive.apply(box, y);
-            return list;
-        }
+        newF.nextForce = followNext('nextForce');
+
+        newF.nextRecursive = followNext('nextRecursive');
+
+        newF.nextRecursiveForce = followNext('nextRecursiveForce');
 
         newF.getClassName = () => {
             return "n";
