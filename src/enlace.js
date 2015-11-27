@@ -1,17 +1,16 @@
-import curry from "cl-curry";
-import feedbackGen from "./feedbackGen";
+import curry from 'cl-curry';
+import feedbackGen from './feedbackGen';
 
 let enlace = () => {
     let boxMap = {};
 
-    let Box = function(node, feedback) {
+    let Box = function(node) {
         this.curry = curry(
             node.data.fun,
             node.ins.length,
             node.data.context
         );
         this.node = node;
-        this.feedback = feedback;
         this.recieve = feedbackGen(this);
         boxMap[this.node.id] = this;
     }
@@ -19,6 +18,9 @@ let enlace = () => {
     Box.prototype = {
         constructor: Box,
         find,
+        setFeedback: function(feedback) {
+            this.feedback = feedback;
+        },
         curryNexts: function(y) {
             curryNexts(this, y)
         },
@@ -30,28 +32,25 @@ let enlace = () => {
         },
         passRecursive: function() {
             passRecursive(this);
-        },
-        passRecursiveForce: function() {
-            passRecursiveForce(this);
         }
     }
 
+    /**
+     * when network is running, you may want to get a box which has not been created
+     *
+     * if box is not exist, then create one
+     *
+     */
     let find = (node) => {
         if (boxMap[node.id]) return boxMap[node.id];
-        return new Box(node);
+        let nbox = new Box(node);
+        return nbox;
     }
 
     let passRecursive = (box) => {
         curryNexts(box);
         pass(box, (next) => {
             passRecursive(next);
-        });
-    }
-
-    let passRecursiveForce = (box) => {
-        curryNexts(box);
-        passForce(box, (next) => {
-            passRecursiveForce(next);
         });
     }
 
@@ -120,7 +119,7 @@ let enlace = () => {
     }
 
     return {
-        create: (node, feedback) => new Box(node, feedback)
+        root: (node) => new Box(node)
     };
 }
 

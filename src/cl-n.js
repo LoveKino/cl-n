@@ -1,71 +1,60 @@
-import Net from "./net";
-import enlace from "./enlace";
+import Net from './net';
 
-module.exports = (opts = {}) => {
+import RN from './rn';
+
+// TODO source, box can know which network it belongs to.
+// split function and box
+// add path
+
+module.exports = () => {
     let net = Net();
 
-    let n = (f, context) => {
-        if (typeof f !== "function") {
-            throw new TypeError("Expect function");
+    let createNewF = (f, context) => {
+        if (typeof f !== 'function') {
+            throw new TypeError('Expect function');
         }
+
+        // node used to build static relationships
 
         let fNode = net.node({
-            fun: f,
-            context: context
+            source: f
         });
 
-        let newF = (...args) => {
-            let ctx = fNode.data.context;
-            let fun = fNode.data.fun;
-            let res = fun.apply(ctx, args);
-            return res;
-        };
-
-        // 
-        context = context || newF;
-        fNode.data.context = context;
-
-        let followNext = (handler) => (...y) => {
-            let gen = enlace();
-            let list = null;
-            let box = gen.create(fNode, (res) => {
-                list = res;
-            });
-            // pass value to sub nodes
-            box.curryNexts(y);
-            handler && handler(box, y);
-            return list;
+        let out = (...args) => {
+            let rn = new RN(fNode);
+            // export functions at out runtime
+            assign('next', out, rn);
+            assign('nextForce', out, rn);
+            assign('nextRecursive', out, rn);
+            return rn.run(args);
         }
 
-        newF.c = newF.append = (...y) => {
+        // 
+        context = context || out;
+        fNode.data.context = context;
+        fNode.data.fun = out;
+
+        out.getNode = () => fNode;
+        return out;
+    }
+
+    let staticRelation = (out) => {
+        out.c = out.append = (...y) => {
             for (let i = 0; i < y.length; i++) {
                 let item = getItem(y[i]);
                 item = item.getNode();
+                let fNode = out.getNode();
                 fNode.append.call(fNode, item);
             }
-            return newF;
+            return out;
         }
+    }
 
-        newF.getNode = () => fNode;
-
-        newF.next = followNext((box, y) => {
-            box.pass();
-        });
-
-        newF.nextForce = followNext((box, y) => {
-            box.passForce();
-        });
-
-        newF.nextRecursive = followNext((box, y) => {
-            box.pass((next) => {
-                next.passRecursive();
-            });
-        });
-
-        newF.getClassName = () => {
-            return "n";
-        }
-        return newF;
+    let n = (f, context) => {
+        let out = createNewF(f, context);
+        staticRelation(out);
+        out.getClassName = () => 'n';
+        return out;
     }
 
     n.series = (...y) => {
@@ -84,14 +73,18 @@ module.exports = (opts = {}) => {
     }
 
     let getItem = (item) => {
-        if (typeof item !== "function") {
-            throw new Error("Expect n function like n(()=>10)");
+        if (typeof item !== 'function') {
+            throw new Error('Expect n function like n(()=>10)');
         }
-        if (!item.getClassName || item.getClassName() !== "n") {
+        if (!item.getClassName || item.getClassName() !== 'n') {
             item = n(item);
         }
         return item;
     }
 
     return n;
+}
+
+let assign = (name, out, ctx) => {
+    out[name] = (...y) => ctx[name].apply(ctx, y);
 }
