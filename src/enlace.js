@@ -19,26 +19,21 @@ let enlace = () => {
     Box.prototype = {
         constructor: Box,
         find,
-        next: function(...y) {
-            curryNexts(this, y);
-            pass(this);
+        curryNexts: function(y) {
+            curryNexts(this, y)
         },
-        nextRecursive: function(...y) {
-            curryNexts(this, y);
-            pass(this, (next) => {
-                passRecursive(next);
-            });
+        pass: function(finish) {
+            pass(this, finish);
         },
-        nextForce: function(...y) {
-            curryNexts(this, y);
-            passForce(this);
+        passForce: function(finish) {
+            passForce(this, finish);
         },
-        nextRecursiveForce: function(...y) {
-            curryNexts(this, y);
-            passForce(this, (next) => {
-                passRecursive(next);
-            });
+        passRecursive: function() {
+            passRecursive(this);
         },
+        passRecursiveForce: function() {
+            passRecursiveForce(this);
+        }
     }
 
     let find = (node) => {
@@ -50,6 +45,13 @@ let enlace = () => {
         curryNexts(box);
         pass(box, (next) => {
             passRecursive(next);
+        });
+    }
+
+    let passRecursiveForce = (box) => {
+        curryNexts(box);
+        passForce(box, (next) => {
+            passRecursiveForce(next);
         });
     }
 
@@ -99,6 +101,12 @@ let enlace = () => {
         } else {
             values.push(box.curry);
         }
+
+        curryValues(box, values);
+    }
+
+    let curryValues = (box, values) => {
+        let outs = box.node.outs;
         // passing
         for (let i = 0; i < outs.length; i++) {
             let nextId = outs[i];

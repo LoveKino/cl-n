@@ -50,11 +50,10 @@ describe("force", () => {
         f1.c(f2, f3);
 
         f2.c(f4);
-        f3.c(f4);
 
         let res = f0()[0];
 
         assert.equal(res, 3);
-        assert.equal(path, '234');
+        assert.equal(path, '243');
     });
 });
