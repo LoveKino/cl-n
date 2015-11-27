@@ -2,33 +2,36 @@ var N = require("../../index");
 
 var n = N();
 
-var simpleTask1 = n(function(){
-    console.log("simpleTask1 done!");
-});
+var task = (handler, context) => {
+    var nhandler = n(function() {
+        var y = Array.prototype.slice(arguments);
+        this.nextForce();
+        handler && handler.apply(context, y);
+    });
+    return nhandler;
+}
 
-var simpleTask2 = n(function(){
-    console.log("simpleTask2 done!");
-});
+var simpleTask1 = task(() => {
+    console.log('simpleTask1 done!\n')
+})
 
-var simpleTask3 = n(function(){
-    console.log("simpleTask3 done!");
-});
+var simpleTask2 = task(() => {
+    console.log('simpleTask2 done!\n')
+})
 
-var complexTask1 = n(function(){
-    console.log("complexTask1 start!");
-    this.nextRecursiveForce();
-    console.log("complexTask1 done!\n");
+var simpleTask3 = task(() => {
+    console.log('simpleTask3 done!\n')
+})
+
+var complexTask1 = task(() => {
+    console.log('complexTask1 done!\n')
 }).append(simpleTask1, simpleTask2);
 
-var complexTask2 = n(function(){
-    console.log("complexTask2 start!");
-    this.nextRecursiveForce();
+var complexTask2 = task(() => {
     console.log("complexTask2 done!\n");
 }).append(simpleTask2, simpleTask3);
 
 simpleTask1();
-
-console.log("\n");
 
 complexTask1();
 

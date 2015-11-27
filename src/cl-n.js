@@ -1,28 +1,8 @@
 import Net from "./net";
 import enlace from "./enlace";
 
-let asyncFunction = (f, context) => (...pros) => new Promise((resolve, reject) => {
-    let argsPro = Promise.all(pros);
-    argsPro.then((args) => {
-        let res = f.apply(context, args);
-        getValue(res).then((v) => resolve(v));
-    }).catch(reject);
-});
-
-let getValue = (res) => {
-    if (res && typeof res === 'object' &&
-        typeof res.then === 'function' &&
-        typeof res.catch === 'function') {
-        return res;
-    } else {
-        return Promise.resolve(res);
-    }
-}
-
 module.exports = (opts = {}) => {
     let net = Net();
-
-    let asyncType = opts.asyncType || false;
 
     let n = (f, context) => {
         if (typeof f !== "function") {
@@ -45,11 +25,6 @@ module.exports = (opts = {}) => {
         context = context || newF;
         fNode.data.context = context;
 
-        if (asyncType === true) {
-            f = asyncFunction(f, context);
-            fNode.data.fun = f;
-        }
-
         let followNext = (handler) => (...y) => {
             let gen = enlace();
             let list = null;
@@ -59,9 +34,6 @@ module.exports = (opts = {}) => {
             // pass value to sub nodes
             box.curryNexts(y);
             handler && handler(box, y);
-            if (asyncType === true) {
-                list = Promise.all(list);
-            }
             return list;
         }
 
@@ -87,12 +59,6 @@ module.exports = (opts = {}) => {
         newF.nextRecursive = followNext((box, y) => {
             box.pass((next) => {
                 next.passRecursive();
-            });
-        });
-
-        newF.nextRecursiveForce = followNext((box, y) => {
-            box.passForce((next) => {
-                next.passRecursiveForce();
             });
         });
 
