@@ -29,10 +29,20 @@ module.exports = () => {
             return rn.run(args);
         }
 
+        // need pass context 
+        let meddle = (enlace) => (...args) => {
+            let rn = new RN(fNode, enlace);
+            // export functions at out runtime
+            assign('next', out, rn);
+            assign('nextForce', out, rn);
+            assign('nextRecursive', out, rn);
+            return rn.run(args);
+        }
+
         // 
         context = context || out;
         fNode.data.context = context;
-        fNode.data.fun = out;
+        fNode.data.fun = meddle;
 
         out.getNode = () => fNode;
         return out;

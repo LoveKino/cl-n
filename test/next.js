@@ -1,83 +1,72 @@
 import assert from "assert";
 import N from "../index";
+require("babel-polyfill");
 
 describe("next", () => {
-    it("next", () => {
+    it("next", async () => {
         let n = N();
-        let f1 = n(function() {
-            return this.next(4);
+        let f1 = n(async function() {
+            return await this.next(4);
         });
         let f2 = n(x => x * 2);
         let f3 = n(x => x / 2);
 
         f1.c(f2, f3);
+        let res = await f1();
 
-        assert.equal(f1().join(","), "8,2");
+        assert.equal(res.join(","), "8,2");
     });
 
-    it("next more", () => {
+    it("next more", async () => {
         let n = N();
-        let f1 = n(function() {
-            return this.next(4);
+        let f1 = n(async function() {
+            return await this.next(4);
         }).c(
-            n(function(x) {
-                return this.next(x - 3);
+            n(async function(x) {
+                return await this.next(x - 3);
             }).c(
                 x => 2 * x,
                 x => x + 1
             ),
 
-            n(function(x) {
-                return this.next(x / 2);
+            n(async function(x) {
+                return await this.next(x / 2);
             }).c(
                 x => 2 * x,
                 x => x + 1
             )
         );
 
-        assert.equal(JSON.stringify(f1()), "[[2,2],[4,3]]");
+        let res = await f1();
+
+        assert.equal(JSON.stringify(res), "[[2,2],[4,3]]");
     });
 
-    it("next recursive", () => {
+    it("next rer", async () => {
         let n = N();
-        let paths = [];
-        let n0 = n(function() {
-            paths.push(0);
-            return this.nextRecursive();
+
+        let f1 = n(async (x, y) => {
+            return await f1.next(x + y);
+        });
+        let f2 = n(async (x) => {
+            return await f2.next(x - 1);
         });
 
-        let n1 = n(function() {
-            paths.push(1);
-            return 1;
+        let f3 = n(async (x) => {
+            return await f3.next(x + 1);
         });
 
-        let n2 = n(function() {
-            paths.push(2);
-            return 2;
+        let f4 = n((x, y) => {
+            return x - y;
         });
 
-        let n3 = n(function() {
-            paths.push(3);
-        });
+        f1.c(f2, f3);
+        f2.c(f4);
+        f3.c(f4);
 
-        let n4 = n(function() {
-            paths.push(4);
-        });
-
-        let n5 = n(function() {
-            paths.push(5);
-        });
-
-        n0.c(n1, n2);
-        n1.c(n3, n4);
-        n2.c(n3, n4);
-
-        n3.c(n5);
-        n4.c(n5);
-
-        let res = n0();
-
-        assert.equal(paths.join(""), "012345");
-        assert.equal(res.join(""), "12");
+        let res = await f1(1, 2);
+        
+        assert.equal(res[0][0], -2);
+        assert.equal(res[1][0], -2);
     });
 });

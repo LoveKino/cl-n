@@ -1,12 +1,12 @@
 import curry from 'cl-curry';
 import feedbackGen from './feedbackGen';
 
-let enlace = () => {
+export default () => {
     let boxMap = {};
 
     let Box = function(node) {
         this.curry = curry(
-            node.data.fun,
+            node.data.fun(enlace), // pass context
             node.ins.length,
             node.data.context
         );
@@ -118,9 +118,8 @@ let enlace = () => {
         }
     }
 
-    return {
-        root: (node) => new Box(node)
-    };
+    let enlace = {
+        find
+    }
+    return enlace;
 }
-
-export default enlace;

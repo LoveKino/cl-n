@@ -1,5 +1,6 @@
 import assert from "assert";
 import N from "../index";
+require("babel-polyfill");
 
 describe("base", () => {
     it("base", () => {
@@ -10,10 +11,10 @@ describe("base", () => {
         assert.equal(f1(4, 2), 6);
     });
 
-    it("append way", () => {
+    it("append way", async () => {
         let n = N();
-        let f1 = n(function() {
-            return this.next(4);
+        let f1 = n(async function() {
+            return await this.next(4);
         });
         let f2 = n(x => x * 2);
         let f3 = n(x => x / 2);
@@ -21,13 +22,14 @@ describe("base", () => {
         f1.append(f2);
         f1.append(f3);
 
-        assert.equal(f1().join(","), "8,2");
+        let res = await f1();
+        assert.equal(res.join(","), "8,2");
     });
 
-    it("fname", () => {
+    it("fname", async () => {
         let n = N();
-        let f1 = n(function() {
-            return f1.next(4);
+        let f1 = n(async function() {
+            return await f1.next(4);
         });
         let f2 = n(x => x * 2);
         let f3 = n(x => x / 2);
@@ -35,7 +37,9 @@ describe("base", () => {
         f1.append(f2);
         f1.append(f3);
 
-        assert.equal(f1().join(","), "8,2");
+        let res = await f1();
+
+        assert.equal(res.join(","), "8,2");
     });
 
     it("this", () => {
