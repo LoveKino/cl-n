@@ -7,11 +7,15 @@ let Node = function(fNode, enlace) {
 
     let me = this;
     this.resultPromise = new Promise((resolve) => {
-        me.box.setFeedback((res) => {
-            Promise.all(res).then((list) => {
-                resolve(list);
+        if (fNode.outs.length === 0) {
+            resolve(undefined);
+        } else {
+            me.box.setFeedback((res) => {
+                Promise.all(res).then((list) => {
+                    resolve(list);
+                });
             });
-        });
+        }
     });
 }
 
@@ -37,6 +41,7 @@ Node.prototype = {
         // pass value to sub nodes
         this.box.curryNexts(y);
         this.box.passForce();
+
         return this.resultPromise;
     }
 }

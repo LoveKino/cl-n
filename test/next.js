@@ -3,6 +3,21 @@ import N from "../index";
 require("babel-polyfill");
 
 describe("next", () => {
+    it("base", async () => {
+        let n = N();
+        let f1 = n(async function() {
+            return await this.next();
+        });
+        let f2 = n(() => 8);
+        let f3 = n(() => 2);
+
+        f1.c(f2, f3);
+
+        let res = await f1();
+
+        assert.equal(res.join(","), "8,2");
+    });
+
     it("next", async () => {
         let n = N();
         let f1 = n(async function() {
