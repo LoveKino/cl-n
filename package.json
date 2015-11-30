@@ -1,6 +1,6 @@
 {
   "name": "cl-n",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Function Connection APIs",
   "main": "index.js",
   "scripts": {
