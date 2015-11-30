@@ -103,7 +103,7 @@ export default () => {
             let nextId = outs[i];
             let next = find(box.node.find(nextId));
             let index = next.node.inMap[box.node.id];
-            doCurry(next, values, index);
+            next.listBox.place(values, index);
         }
     }
 
@@ -114,16 +114,9 @@ export default () => {
         return fun.apply(context, args);
     }
 
-    let doCurry = (next, values, index) => {
-        next.listBox.place(values, index);
-    }
-
-    let isFinished = (box) => {
-        return box.listBox.isFull();
-    }
-
     let enlace = {
         find
     }
+    
     return enlace;
 }
