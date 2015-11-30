@@ -32,6 +32,22 @@ describe("next", () => {
         assert.equal(res.join(","), "8,2");
     });
 
+    it("next params", async () => {
+        let n = N();
+        let f1 = n(async function() {
+            return await this.next(1, 2);
+        });
+        let f2 = n((x, y) => x + y);
+        let f3 = n((x, y) => x - y);
+
+        f1.c(f2, f3);
+
+        let res = await f1();
+
+        assert.equal(res[0], 3);
+        assert.equal(res[1], -1);
+    });
+
     it("next more", async () => {
         let n = N();
         let f1 = n(async function() {

@@ -3,10 +3,9 @@ let feedbackGen = (box) => {
     let resCount = node.outs.length;
     let resMap = {};
     let res = [];
-    
-    return (next) => {
-        let v = next.curry;
-        let index = node.outMap[next.node.id];
+
+    return (nextId, v) => {
+        let index = node.outMap[nextId];
 
         if (index < 0) {
             throw new Error("index is less than 0");

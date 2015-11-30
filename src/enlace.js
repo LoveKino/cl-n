@@ -1,15 +1,11 @@
-import curry from 'cl-curry';
 import feedbackGen from './feedbackGen';
+import ListBox from './listBox.js';
 
 export default () => {
     let boxMap = {};
 
     let Box = function(node) {
-        this.curry = curry(
-            node.data.fun(enlace), // pass context
-            node.ins.length,
-            node.data.context
-        );
+        this.listBox = new ListBox(node.ins.length);
         this.node = node;
         this.recieve = feedbackGen(this);
         boxMap[this.node.id] = this;
@@ -61,7 +57,7 @@ export default () => {
             let nextId = outs[i];
             let next = find(box.node.find(nextId));
             // judge finished or not
-            if (curry.isFinished(next.curry)) {
+            if (next.listBox.isFull()) {
                 recieve(next, finish);
             }
         }
@@ -73,10 +69,6 @@ export default () => {
         for (let i = 0; i < outs.length; i++) {
             let nextId = outs[i];
             let next = find(box.node.find(nextId));
-            // finish it
-            if (!curry.isFinished(next.curry)) {
-                next.curry = curry.finish(next.curry);
-            }
             recieve(next, finish);
         }
     }
@@ -85,7 +77,7 @@ export default () => {
         for (let i = 0; i < next.node.ins.length; i++) {
             let inId = next.node.ins[i];
             let item = find(next.node.find(inId));
-            item.recieve(next);
+            item.recieve(next.node.id, getValue(next));
         }
 
         finish && finish(next);
@@ -98,7 +90,7 @@ export default () => {
             if (!list.length) list = [undefined];
             values = list;
         } else {
-            values.push(box.curry);
+            values.push(getValue(box));
         }
 
         curryValues(box, values);
@@ -111,11 +103,23 @@ export default () => {
             let nextId = outs[i];
             let next = find(box.node.find(nextId));
             let index = next.node.inMap[box.node.id];
-            for (let j = 0; j < values.length; j++) {
-                let value = values[j];
-                next.curry = next.curry(value, index);
-            }
+            doCurry(next, values, index);
         }
+    }
+
+    let getValue = (next) => {
+        let fun = next.node.data.fun(enlace);
+        let context = next.node.data.context;
+        let args = next.listBox.getList();
+        return fun.apply(context, args);
+    }
+
+    let doCurry = (next, values, index) => {
+        next.listBox.place(values, index);
+    }
+
+    let isFinished = (box) => {
+        return box.listBox.isFull();
     }
 
     let enlace = {
