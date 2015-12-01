@@ -1,6 +1,6 @@
 {
   "name": "cl-n",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Function Connection APIs",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,11 @@
     "type": "git",
     "url": "git+https://github.com/LoveKino/cl-n.git"
   },
-  "keywords": [],
+  "keywords": [
+    "function",
+    "connection",
+    "network"
+  ],
   "author": "ddchen",
   "license": "MIT"
 }

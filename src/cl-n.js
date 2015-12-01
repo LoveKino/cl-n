@@ -1,10 +1,5 @@
 import Net from './net';
-
 import RN from './rn';
-
-// TODO source, box can know which network it belongs to.
-// split function and box
-// add path
 
 module.exports = () => {
     let net = Net();

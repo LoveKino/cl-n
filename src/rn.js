@@ -6,14 +6,14 @@ let Node = function(fNode, enlace) {
     this.box = enlace.find(this.fNode);
 
     let me = this;
-    this.resultPromise = new Promise((resolve) => {
+    this.resultPromise = new Promise((resolve, reject) => {
         if (fNode.outs.length === 0) {
             resolve(undefined);
         } else {
             me.box.setFeedback((res) => {
                 Promise.all(res).then((list) => {
                     resolve(list);
-                });
+                }).catch(reject);
             });
         }
     });

@@ -87,12 +87,10 @@ export default () => {
         let outs = box.node.outs;
         let values = [];
         if (list) {
-            if (!list.length) list = [undefined];
             values = list;
         } else {
             values.push(getValue(box));
         }
-
         curryValues(box, values);
     }
 
@@ -111,7 +109,8 @@ export default () => {
         let fun = next.node.data.fun(enlace);
         let context = next.node.data.context;
         let args = next.listBox.getList();
-        return fun.apply(context, args);
+        let ret = fun.apply(context, args);
+        return ret;
     }
 
     let enlace = {
